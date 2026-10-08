@@ -1,8 +1,3 @@
-*{
-   margin:0;
-   padding:0;
-   box-sizing:border-box;
-}
 :root {
   /* Dayloom / Kiki-inspired palette */
   --color-night: #181D23;
@@ -31,3 +26,21 @@
   --color-border: rgba(24, 29, 35, 0.15);
   --shadow-soft: 0 4px 16px rgba(24, 29, 35, 0.12);
 }
+
+
+.homePage{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: plum;
+    min-height: 100vh;
+
+}
+
+.leftTextContent{
+    background: yellow;
+    padding: 10px;
+}
+

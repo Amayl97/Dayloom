@@ -1,7 +1,9 @@
+// import Home from "./pages/Home"
+import Adventure from "./pages/Adventure";
 
-
-export default function App(){
-    return(
-        <h2>Don't know what to do!</h2>
-    )
+export default function App() {
+  return (
+    //  <Home/>
+    <Adventure/>
+  );
 }
