@@ -1,6 +1,7 @@
 import "../css/home.css"
 import AdventureBtn from "../components/StartAdventureButton";
 
+
 export default function Home() {
   return (
     <section className="homePage">

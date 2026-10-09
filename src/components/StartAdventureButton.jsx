@@ -1,7 +1,8 @@
-
+import { useNavigate } from "react-router-dom";
 
 export default function StartAdventureButton(){
+    const navigate = useNavigate();
     return(
-    <button>Go onto the mission</button>
+    <button onClick={() => navigate("/adventure")}>Go onto the mission</button>
     );
 }
