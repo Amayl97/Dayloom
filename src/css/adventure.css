@@ -1,6 +1,258 @@
 
-.adventurePage{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --panel-shadow: 0 24px 60px rgba(17, 23, 28, 0.16);
+  --text-strong: rgba(31, 36, 40, 0.96);
+  --text-soft: rgba(31, 36, 40, 0.74);
+  --sage: #5f745f;
+  --sand: #f7efe6;
+  --terracotta: #b96a58;
+  --gold: #d8b877;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    linear-gradient(rgba(15, 24, 29, 0.12), rgba(15, 24, 29, 0.16)),
+    url("../assets/A\ Village\ Where\ Time\ Stands\ Still\ 🌿☁️.jpg") center/cover no-repeat fixed;
+}
+
+.adventurePage {
+  min-height: 100vh;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  gap: clamp(1.2rem, 3vw, 3rem);
+  align-items: center;
+}
+
+.leftContent,
+.rightContent {
+  position: relative;
+  z-index: 1;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.065);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), var(--panel-shadow);
+}
+
+.leftContent {
+  padding: clamp(1.3rem, 2.5vw, 2.2rem);
+}
+
+.rightContent {
+  padding: clamp(1.3rem, 2.5vw, 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 0.75rem;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 0.3rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(34, 53, 63, 0.75);
+}
+
+.leftContent h2,
+.rightContent h3 {
+  margin: 0;
+  font-size: clamp(1.9rem, 3vw, 3rem);
+  line-height: 1.1;
+  font-weight: 600;
+  color: rgba(34, 39, 42, 0.94);
+}
+
+.taskList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.taskItem {
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  padding: 0.85rem 0.9rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.taskCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.taskCopy h4 {
+  margin: 0;
+  font-size: clamp(1rem, 1.4vw, 1.35rem);
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.uploadLabel {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(30, 42, 46, 0.82);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.uploadLabel:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.taskCopy input[type="file"] {
+  display: none;
+}
+
+.promptText {
+  margin: 0;
+  font-size: clamp(0.98rem, 1.2vw, 1.1rem);
+  line-height: 1.7;
+  color: var(--text-soft);
+}
+
+.cardFrame {
+  min-height: 370px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.memoryCardImage {
+  width: 100%;
+  max-width: 440px;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 18px;
+  box-shadow: 0 18px 38px rgba(28, 22, 16, 0.18);
+}
+
+.cardPlaceholder {
+  width: 100%;
+  max-width: 440px;
+  height: 500px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  border: 1px dashed rgba(255, 255, 255, 0.28);
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.12));
+  color: rgba(30, 42, 46, 0.72);
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.96rem;
+}
+
+.btns {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 0.35rem;
+}
+
+.glassButton {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(27, 33, 38, 0.9);
+  border-radius: 999px;
+  padding: 0.8rem 1.4rem;
+  font-size: 0.96rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), 0 14px 30px rgba(17, 23, 28, 0.12);
+  backdrop-filter: blur(12px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.glassButton:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.34);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26), 0 18px 32px rgba(17, 23, 28, 0.14);
+}
+
+.statusMessage {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 1rem 1.2rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(14px);
+  color: rgba(31, 36, 40, 0.9);
+}
+
+.statusMessage.error {
+  color: rgba(137, 48, 44, 0.9);
+}
+
+@media (max-width: 900px) {
+  .adventurePage {
+    grid-template-columns: 1fr;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .leftContent,
+  .rightContent {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  body {
+    background-attachment: scroll;
+  }
+
+  .adventurePage {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .leftContent,
+  .rightContent {
+    border-radius: 22px;
+    padding: 1rem;
+  }
+
+  .cardFrame,
+  .cardPlaceholder {
+    min-height: 260px;
+  }
+
+  .glassButton {
+    width: 100%;
+  }
 }
