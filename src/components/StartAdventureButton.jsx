@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import "../css/home.css"
 
 export default function StartAdventureButton(){
     const navigate = useNavigate();
     return(
-    <button onClick={() => navigate("/adventure")}>Go onto the mission</button>
+    <button className="adventure-btn" onClick={() => navigate("/adventure")}>Go onto the mission</button>
     );
 }
