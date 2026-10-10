@@ -90,7 +90,7 @@ export default function Adventure() {
     const selectedPhotos = photos.flat();
 
     if (selectedPhotos.length === 0) {
-      setCardError("Please upload at least one photo or video first.");
+      setCardError("Please upload at least one photo!");
       return;
     }
 
