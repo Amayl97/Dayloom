@@ -15,42 +15,42 @@ export default function Home() {
       <div className="rightTextContent">
         <h3>How it works</h3>
         <ul>
-          <li>
+          <li data-step="01">
             <div>
-              <h4>01 - Receive Your Missions</h4>
+              <h4>Receive Your Missions</h4>
               <p>
                 Start your day with five little adventures created just for you.
               </p>
             </div>
           </li>
 
-          <li>
+          <li data-step="02">
             <div>
-              <h4>02 — Step outside</h4>
+              <h4>Step outside</h4>
               <p>
                 Leave the screen behind and explore, notice, create, or simply
                 enjoy something around you.
               </p>
             </div>
           </li>
-          <li>
+          <li data-step="03">
             <div>
-              <h4>03 — Capture the moment</h4>
+              <h4>Capture the moment</h4>
               <p>Take a photo of each adventure you want to remember.</p>
             </div>
           </li>
-          <li>
+          <li data-step="04">
             <div>
-              <h4>04 — Make your keepsake</h4>
+              <h4>Make your keepsake</h4>
               <p>
                 Add at least four memories and Dayloom will turn them into a
                 little card from your day.
               </p>
             </div>
           </li>
-          <li>
+          <li data-step="05">
             <div>
-              <h4>05 — Keep the memory</h4>
+              <h4>Keep the memory</h4>
               <p>
                 Download your Dayloom card and keep a piece of today's adventure.
               </p>
