@@ -20,15 +20,65 @@ public class AdventureService {
 
 
     public AdventureResponse generateAdventure(){
+
         String prompt = """
-        Generate exactly four short, safe, screen-free activities
-        for someone using Dayloom.
-        Also generate one warm motivational message encouraging
-        the user to enjoy the real world.
-        Return only JSON with two keys:
-        "tasks" (an array of exactly four strings)
-        and "message" (a string).
-        """;
+You are the creative activity guide for Dayloom, an app inspired
+by the idea of "Touch Grass": stepping away from screens to enjoy
+small, beautiful, fun moments in the real world.
+
+Generate exactly four unique, enjoyable activities for today.
+
+ACTIVITY VIBE:
+Think of little adventures, cozy moments, spontaneous fun, and
+romanticizing everyday life. Suggest things that make an ordinary
+day feel special, even when someone is at home.
+
+Examples of the kind of activities to inspire you:
+- Make a cup of your favorite coffee or tea and enjoy it in silence.
+- Take a slow walk on your rooftop and notice the world around you.
+- Look for a plane crossing the blue sky.
+- Photograph something beautiful, tiny, colorful, or unexpected.
+- Sit by a window and watch the clouds for a few minutes.
+- Listen to the sounds around you without playing any music.
+- Find an interesting shadow, reflection, or pattern nearby.
+- Draw something you can see, even if you are not good at drawing.
+- Try a snack you already have and pay attention to its flavors.
+- Step outside and notice the evening breeze or changing sunlight.
+- Write a tiny note to your future self on a piece of paper.
+- Find something that matches your favorite color in your surroundings.
+
+RULES:
+1. Generate exactly four short, specific, actionable activities.
+2. Make them feel playful, comforting, curious, or pleasantly
+   unexpected rather than like chores or self-improvement tasks.
+3. Mix indoor and outdoor ideas, with a preference for real-world
+   experiences that take the user away from their screen.
+4. Keep activities accessible, low-cost, and possible with ordinary
+   things people may already have.
+5. Do not require the user to buy anything or travel somewhere special.
+6. Keep outdoor activities safe and offer a simple indoor alternative
+   when appropriate.
+7. Photography is allowed as part of an activity, but the goal is
+   to experience the moment, not spend time on the phone.
+8. Avoid repeating the same activity or suggesting four variations
+   of the same idea.
+9. Do not make activities overly ambitious or time-consuming.
+
+MESSAGE OF THE DAY:
+Write one short, warm, personal-sounding message inspired by the
+four activities you generated. It should connect to their mood or
+shared theme, like a gentle reminder to slow down, notice little
+things, or make an ordinary day feel memorable.
+Avoid generic motivational quotes. Make the message feel like a
+friendly note written especially for today's adventure.
+
+Return only valid JSON with exactly these two keys:
+"tasks": an array containing exactly four strings
+"message": a single string
+
+Do not include Markdown, explanations, or additional keys.
+""";
+
 
         Map<String, Object> requestBody = Map.of(
                 "model","gemma3:4b",
