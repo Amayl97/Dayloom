@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "../css/adventure.css";
 
 export default function Adventure() {
@@ -8,188 +8,184 @@ export default function Adventure() {
   const [error, setError] = useState("");
   const [photos, setPhotos] = useState([]);
   const [memoryCard, setMemoryCard] = useState("");
+  const [uploadError, setUploadError] = useState("");
+  const [cardError, setCardError] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const imageUrls = useRef(new Set());
 
-  function handlePhotoChange(event, index) {
-    const file = event.target.files[0];
+  useEffect(() => () => {
+    imageUrls.current.forEach((url) => URL.revokeObjectURL(url));
+  }, []);
 
-    if (!file) return;
+  async function handlePhotoChange(event, index) {
+    const files = Array.from(event.currentTarget.files || []);
+    event.currentTarget.value = "";
 
-    setPhotos((currentPhotos) => {
-      const updatedPhotos = [...currentPhotos];
-      updatedPhotos[index] = file;
-      return updatedPhotos;
-    });
+    if (files.length === 0) return;
+
+    setUploadError("");
+    setCardError("");
+
+    try {
+      const entries = await Promise.all(files.map((file) => {
+        if (file.type.startsWith("image/")) {
+          const src = URL.createObjectURL(file);
+          imageUrls.current.add(src);
+          return { id: crypto.randomUUID(), src, isVideo: false };
+        }
+
+        if (file.type.startsWith("video/")) {
+          return new Promise((resolve, reject) => {
+            const videoUrl = URL.createObjectURL(file);
+            const video = document.createElement("video");
+            video.preload = "auto";
+            video.muted = true;
+            video.onloadeddata = () => {
+              try {
+                const canvas = document.createElement("canvas");
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext("2d").drawImage(video, 0, 0);
+                const src = canvas.toDataURL("image/jpeg", 0.88);
+                video.pause();
+                video.removeAttribute("src");
+                video.load();
+                URL.revokeObjectURL(videoUrl);
+                resolve({ id: crypto.randomUUID(), src, isVideo: true });
+              } catch (frameError) {
+                URL.revokeObjectURL(videoUrl);
+                reject(frameError);
+              }
+            };
+            video.onerror = () => {
+              URL.revokeObjectURL(videoUrl);
+              reject(new Error("Could not read this video."));
+            };
+            video.src = videoUrl;
+          });
+        }
+
+        throw new Error("Choose an image or video file.");
+      }));
+
+      setPhotos((currentPhotos) => {
+        const updatedPhotos = [...currentPhotos];
+        updatedPhotos[index] = [...(updatedPhotos[index] || []), ...entries];
+        return updatedPhotos;
+      });
+      setMemoryCard("");
+    } catch (uploadFailure) {
+      setUploadError(uploadFailure.message || "Could not read one of the selected files.");
+    }
+  }
+
+  function removePhoto(taskIndex, photoId) {
+    setPhotos((currentPhotos) => currentPhotos.map((taskPhotos, index) => (
+      index === taskIndex ? taskPhotos.filter((photo) => photo.id !== photoId) : taskPhotos
+    )));
+    setMemoryCard("");
   }
 
   async function generateMemoryCard() {
-    const selectedPhotos = photos.filter(Boolean);
+    const selectedPhotos = photos.flat();
 
     if (selectedPhotos.length === 0) {
-      setError("Please upload at least one photo first.");
+      setCardError("Please upload at least one photo or video first.");
       return;
     }
 
-    setError("");
+    setCardError("");
+    setIsGenerating(true);
 
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+    try {
+      const images = await Promise.all(selectedPhotos.map((photo) => new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error("Could not load one of your uploaded images."));
+        image.src = photo.src;
+      })));
 
-    canvas.width = 1200;
-    canvas.height = 1500;
+      const canvas = document.createElement("canvas");
+      const startX = 90;
+      const startY = 220;
+      const innerWidth = 1020;
+      const gap = 20;
+      const columns = images.length === 1 ? 1 : 2;
+      const tileWidth = columns === 1 ? innerWidth : (innerWidth - gap) / columns;
+      const tileHeight = columns === 1 ? 760 : 400;
+      const rows = Math.ceil(images.length / columns);
+      const footerY = startY + rows * tileHeight + (rows - 1) * gap + 50;
+      canvas.width = 1200;
+      canvas.height = footerY + 130;
+      const ctx = canvas.getContext("2d");
 
-    const warmCream = "#f6efe6";
-    const textDark = "#2f2a2a";
-    const terracotta = "#c8846a";
-    const sage = "#7d9b88";
-    const softGold = "#d7b573";
+      if (!ctx) throw new Error("Could not create the memory card.");
 
-    ctx.fillStyle = warmCream;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "rgba(71, 64, 56, 0.06)";
-    ctx.fillRect(50, 50, canvas.width - 100, canvas.height - 100);
-
-    ctx.fillStyle = textDark;
-    ctx.font = "700 52px 'Segoe UI', sans-serif";
-    ctx.textAlign = "left";
-    ctx.fillText("Dayloom", 90, 110);
-
-    ctx.fillStyle = terracotta;
-    ctx.font = "600 32px 'Segoe UI', sans-serif";
-    ctx.fillText("Today's little moments", 90, 165);
-
-    const images = await Promise.all(
-      selectedPhotos.map((file) => {
-        return new Promise((resolve, reject) => {
-          const image = new Image();
-          const imageUrl = URL.createObjectURL(file);
-
-          image.onload = () => {
-            URL.revokeObjectURL(imageUrl);
-            resolve(image);
-          };
-
-          image.onerror = () => {
-            URL.revokeObjectURL(imageUrl);
-            reject(new Error("Could not load one of your photos."));
-          };
-
-          image.src = imageUrl;
-        });
-      })
-    );
-
-    const startX = 90;
-    const startY = 220;
-    const innerWidth = canvas.width - startX * 2;
-    const gap = 20;
-
-    const totalCards = Math.min(images.length, 4);
-    const layout = {
-      1: ["full"],
-      2: ["half", "half"],
-      3: ["tall", "small", "small"],
-      4: ["small", "tall", "small", "small"],
-    }[totalCards] || ["small", "small", "small", "small"];
-
-    const itemHeight = totalCards === 1 ? 760 : totalCards === 2 ? 520 : 340;
-    let currentY = startY;
-
-    layout.forEach((shape, index) => {
-      const image = images[index];
-      const isTall = shape === "tall" || shape === "full";
-      let width = 0;
-      let height = 0;
-      let x = startX;
-
-      if (totalCards === 1) {
-        width = innerWidth;
-        height = 760;
-      } else if (totalCards === 2) {
-        width = (innerWidth - gap) / 2;
-        height = 520;
-        x = startX + (index % 2) * (width + gap);
-      } else if (totalCards >= 3) {
-        width = shape === "small" ? (innerWidth - gap) / 2 : innerWidth;
-        height = isTall ? itemHeight + 80 : itemHeight;
-
-        if (shape === "small") {
-          x = startX + (index % 2) * (width + gap);
-          if (index % 2 === 1) {
-            currentY += itemHeight + gap;
-          }
-        } else {
-          x = startX;
-        }
-      }
-
-      const cardWidth = width;
-      const cardHeight = height;
-      const cardX = x;
-      const cardY = currentY;
-
-      const radius = 28;
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(cardX + radius, cardY);
-      ctx.lineTo(cardX + cardWidth - radius, cardY);
-      ctx.quadraticCurveTo(cardX + cardWidth, cardY, cardX + cardWidth, cardY + radius);
-      ctx.lineTo(cardX + cardWidth, cardY + cardHeight - radius);
-      ctx.quadraticCurveTo(cardX + cardWidth, cardY + cardHeight, cardX + cardWidth - radius, cardY + cardHeight);
-      ctx.lineTo(cardX + radius, cardY + cardHeight);
-      ctx.quadraticCurveTo(cardX, cardY + cardHeight, cardX, cardY + cardHeight - radius);
-      ctx.lineTo(cardX, cardY + radius);
-      ctx.quadraticCurveTo(cardX, cardY, cardX + radius, cardY);
-      ctx.closePath();
-      ctx.clip();
-
-      const scale = Math.max(
-        cardWidth / image.width,
-        cardHeight / image.height
-      );
-      const drawWidth = image.width * scale;
-      const drawHeight = image.height * scale;
-      const drawX = cardX + (cardWidth - drawWidth) / 2;
-      const drawY = cardY + (cardHeight - drawHeight) / 2;
-
-      ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
-      ctx.restore();
-
-      ctx.fillStyle = "rgba(255,255,255,0.18)";
-      ctx.fillRect(cardX, cardY + cardHeight - 86, cardWidth, 86);
-
-      ctx.fillStyle = "rgba(35, 31, 27, 0.8)";
-      ctx.font = "600 20px 'Segoe UI', sans-serif";
+      ctx.fillStyle = "#f6efe6";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "rgba(71, 64, 56, 0.06)";
+      ctx.fillRect(50, 50, canvas.width - 100, canvas.height - 100);
+      ctx.fillStyle = "#2f2a2a";
+      ctx.font = "700 52px 'Segoe UI', sans-serif";
       ctx.textAlign = "left";
-      ctx.fillText(`Moment ${index + 1}`, cardX + 18, cardY + cardHeight - 40);
+      ctx.fillText("Dayloom", 90, 110);
+      ctx.fillStyle = "#c8846a";
+      ctx.font = "600 32px 'Segoe UI', sans-serif";
+      ctx.fillText("Today's little moments", 90, 165);
 
-      if (shape === "small") {
-        currentY = cardY + cardHeight + gap;
-      } else if (shape === "tall" && totalCards >= 3) {
-        currentY = cardY + cardHeight + gap;
-      } else if (shape === "full") {
-        currentY = cardY + cardHeight + gap;
-      }
-    });
+      images.forEach((image, index) => {
+        const cardX = startX + (index % columns) * (tileWidth + gap);
+        const cardY = startY + Math.floor(index / columns) * (tileHeight + gap);
+        const radius = 28;
 
-    ctx.fillStyle = textDark;
-    ctx.font = "600 22px 'Segoe UI', sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(new Date().toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }), 600, 1410);
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(cardX + radius, cardY);
+        ctx.lineTo(cardX + tileWidth - radius, cardY);
+        ctx.quadraticCurveTo(cardX + tileWidth, cardY, cardX + tileWidth, cardY + radius);
+        ctx.lineTo(cardX + tileWidth, cardY + tileHeight - radius);
+        ctx.quadraticCurveTo(cardX + tileWidth, cardY + tileHeight, cardX + tileWidth - radius, cardY + tileHeight);
+        ctx.lineTo(cardX + radius, cardY + tileHeight);
+        ctx.quadraticCurveTo(cardX, cardY + tileHeight, cardX, cardY + tileHeight - radius);
+        ctx.lineTo(cardX, cardY + radius);
+        ctx.quadraticCurveTo(cardX, cardY, cardX + radius, cardY);
+        ctx.closePath();
+        ctx.clip();
 
-    ctx.fillStyle = sage;
-    ctx.font = "500 22px 'Segoe UI', sans-serif";
-    ctx.fillText(message.slice(0, 80) || "A little adventure, remembered.", 600, 1460);
+        const scale = Math.max(tileWidth / image.width, tileHeight / image.height);
+        const drawWidth = image.width * scale;
+        const drawHeight = image.height * scale;
+        ctx.drawImage(image, cardX + (tileWidth - drawWidth) / 2, cardY + (tileHeight - drawHeight) / 2, drawWidth, drawHeight);
+        ctx.restore();
 
-    ctx.fillStyle = softGold;
-    ctx.fillRect(90, 1385, 1020, 4);
+        ctx.fillStyle = "rgba(255,255,255,0.18)";
+        ctx.fillRect(cardX, cardY + tileHeight - 64, tileWidth, 64);
+        ctx.fillStyle = "rgba(35, 31, 27, 0.8)";
+        ctx.font = "600 20px 'Segoe UI', sans-serif";
+        ctx.textAlign = "left";
+        ctx.fillText(`Moment ${index + 1}`, cardX + 18, cardY + tileHeight - 28);
+      });
 
-    setMemoryCard(canvas.toDataURL("image/png"));
+      ctx.fillStyle = "#d7b573";
+      ctx.fillRect(90, footerY, 1020, 4);
+      ctx.fillStyle = "#2f2a2a";
+      ctx.font = "600 22px 'Segoe UI', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(new Date().toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }), 600, footerY + 42);
+      ctx.fillStyle = "#7d9b88";
+      ctx.font = "500 22px 'Segoe UI', sans-serif";
+      ctx.fillText(message.slice(0, 80) || "A little adventure, remembered.", 600, footerY + 82);
+
+      setMemoryCard(canvas.toDataURL("image/png"));
+    } catch (generationFailure) {
+      setCardError(generationFailure.message || "Could not generate the memory card.");
+    } finally {
+      setIsGenerating(false);
+    }
   }
 
   function downloadMemoryCard() {
@@ -266,15 +262,35 @@ export default function Adventure() {
             <li key={index} className="taskItem">
               <div className="taskCopy">
                 <h4>{task}</h4>
-                <label className="uploadLabel" htmlFor={`photo-${index}`}>
-                  Add photo
-                </label>
-                <input
-                  id={`photo-${index}`}
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => handlePhotoChange(event, index)}
-                />
+                <div className="uploadControlRow">
+                  <label className="uploadLabel" htmlFor={`photo-${index}`}>
+                    Add media
+                  </label>
+                  <input
+                    id={`photo-${index}`}
+                    type="file"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={(event) => handlePhotoChange(event, index)}
+                  />
+                  <div className="uploadPreviews">
+                    {(photos[index] || []).map((photo) => (
+                      <div className="uploadPreview" key={photo.id}>
+                        <img src={photo.src} alt={photo.isVideo ? "Video preview frame" : "Uploaded photo"} />
+                        {photo.isVideo && <span className="videoPreviewBadge">Video</span>}
+                        <button
+                          type="button"
+                          className="removeUploadButton"
+                          aria-label="Remove uploaded media"
+                          title="Remove media"
+                          onClick={() => removePhoto(index, photo.id)}
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </li>
           ))}
@@ -305,8 +321,8 @@ export default function Adventure() {
 
         <div className="btns">
           {!memoryCard ? (
-            <button className="glassButton" onClick={generateMemoryCard}>
-              Generate memory card
+            <button className="glassButton" onClick={generateMemoryCard} disabled={isGenerating}>
+              {isGenerating ? "Creating memory card..." : "Generate memory card"}
             </button>
           ) : (
             <button className="glassButton" onClick={downloadMemoryCard}>
@@ -314,6 +330,9 @@ export default function Adventure() {
             </button>
           )}
         </div>
+        {(uploadError || cardError) && (
+          <p className="statusMessage error" role="alert">{uploadError || cardError}</p>
+        )}
       </div>
     </section>
   );
