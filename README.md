@@ -13,10 +13,10 @@ Instead of encouraging more screen time, Dayloom encourages you to go outside, s
 - **🌱 AI-Powered Daily Activities:** Generate five fun, peaceful, and achievable offline activities using Gemma 3 4B.
 - **💬 Daily Motivational Message:** Receive an encouraging message to inspire your day.
 - **📸 Capture Your Moments:** Upload photos from your offline adventures and preview or replace them.
-- **🎞️ Personalized Memory Cards:** Transform your photos into a visually styled collage featuring the date and a motivational message.
+- **🎞️ Personalised Memory Cards:** Transform your photos into a visually styled collage featuring the date and a motivational message.
 - **⬇️ Download and Share:** Download your memory card as an image and share your daily moments with friends.
-- **💾 Saved Progress:** Keep your activity and photo progress available across page refreshes.
-- **🎨 Cozy, Playful Design:** A warm, nostalgic aesthetic inspired by creative journaling and Pinterest-style photo collages.
+- **💾 Saved Progress:** Keep your activities available across page refreshes.
+- **🎨 Cosy, Playful Design:** A warm, nostalgic aesthetic inspired by creative journaling and Pinterest-style photo collages.
 
 ## 💡 Why Dayloom?
 
